@@ -5,10 +5,10 @@ PANDA3D-PURSES. HJHilberding/Momojohobo. Licenced whatever you like.
     Only works with monospaced fonts with U+2588 (for bg colors)
     Is meant to be used for more ascii or hackery GUIs and HUDs
     Could serve for making ascii/text games in panda3d
+    Starts crawling to a halt when windows are larger then 100x100
 TODO:
     Translate mouse cursor to Window cursor.
     Steal more handy functions from curses.
-    Make a custom TextProperties to expand? (reverse colors, blinking, etc.)
 """
 
 from panda3d.core import TextNode, TextPropertiesManager, TextProperties
@@ -37,11 +37,10 @@ for color in colors:
 EMPTY_CHAR = None
 EMPTY_ATTR = [None, None]
 
-# Everything is a window, which has a grid (list of lists) of characters.
+# A window, which has a grid (list of lists) of characters.
 # A character is either None or looks like this:
 # ("c", ["fg_properties", "bg_properties"])
 # Properties can be None to get a white fg and a transparent bg.
-
 class Window:
     def __init__(self, x, y, width, height):
         self.cursor = [0,0]
@@ -151,14 +150,22 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self):
-        Window.__init__(self, 0, 0, 82, 42)
+    def __init__(self, width, height, font="hack.ttf"):
+        self.width = width
+        self.height = height
+
+        Window.__init__(self, 0, 0, self.width, self.height)
         self.textnodes = (TextNode("PursesFG"), TextNode("PursesBG"))
-        self.font = loader.loadFont("hack.ttf")
+        self.font = loader.loadFont(font)
 
         # Set to nearest filter so background color doesn't have lines.
         self.font.setMagfilter(SamplerState.FT_nearest)
         self.font.setMinfilter(SamplerState.FT_nearest)
+
+        self.w = self.font.getSpaceAdvance()/2
+        self.h = self.font.getLineHeight()/2
+        self.cw = (self.w*self.width)
+        self.ch = (self.h*self.height)
 
         # Background color is a seperate textnode that 
         # only prints a unicode full block with properties. 
@@ -167,10 +174,8 @@ class Purses(Window):
         for n, node in enumerate(self.textnodes):
             node.setFont(self.font)
             np = render2d.attachNewNode(node)
-            # TODO: These two  need to be calculated based on
-            # size of grid vs the size of a single character
-            np.setScale(0.04)
-            np.setPos(-0.99,n+100,0.95)
+            np.setScale(1/self.cw, 1, 1/self.ch)
+            np.setPos(-1 ,n+100,1-(self.h/15 ))
 
     # Set grid to a single string and throw it to the screen. (messy)
     def refresh(self):
@@ -220,10 +225,10 @@ if __name__ == "__main__":
             self.win.setClearColor((0,0,0,1))
             self.accept("escape", sys.exit)
 
-            self.purses = Purses() # Init purses
-            self.t_wind = Window(0, 0, 82, 42) # Make a window
-            self.l_wind = Window(60, 0, 9, 42) # Make another window
-            self.s_wind = Window(35, 20, 30, 3) # One more
+            self.purses = Purses(81, 41) # Init purses
+            self.t_wind = Window(0, 0, 81, 41) # Make a window
+            self.l_wind = Window(80-8, 0, 8, 41) # Make another window
+            self.s_wind = Window(30, 0, 25, 3) # One more
 
             # Some lazy timers
             self.i = 0
@@ -240,10 +245,10 @@ if __name__ == "__main__":
 
         def loop(self, task):
             # Rotate panda
-            self.model.setH(self.model.getH()+2)
+            self.model.setH(self.model.getH()+5)
 
             self.i += 1
-            if self.i > 2: # Slow it down so we can see what happens better
+            if self.i > 5: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
                 if self.n > 32:
@@ -259,7 +264,7 @@ if __name__ == "__main__":
                 for i in range(6):
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
-                self.t_wind.addstr(0, 41, s, (choice(cc), choice(cc)))
+                self.t_wind.addstr(0, 40, s, (choice(cc), choice(cc)))
 
 
                 # Draw that classic idle/loading thingy in other window.
