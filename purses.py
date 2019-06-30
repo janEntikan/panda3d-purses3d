@@ -65,7 +65,6 @@ class Window:
                     self.scroll()
 
     # Scroll the grid 
-    # TODO: First row is lost, perhaps keep in a history list?
     def scrolldown(self):
         self.grid.pop(0)
         self.grid.append([])
@@ -175,7 +174,10 @@ class Purses(Window):
             node.setFont(self.font)
             np = render2d.attachNewNode(node)
             np.setScale(1/self.cw, 1, 1/self.ch)
-            np.setPos(-1 ,n+100,1-(self.h/15 ))
+            np.setPos(-1 ,n+100,1-(self.h/15))
+
+        self.mousewatcher = base.mouseWatcherNode
+        self.getmouse()
 
     # Set grid to a single string and throw it to the screen. (messy)
     def refresh(self):
@@ -207,6 +209,17 @@ class Purses(Window):
         for n, node in enumerate(self.textnodes):
             node.setText(strings[n])
 
+    def getmouse(self, window=None):
+        if self.mousewatcher.hasMouse():
+            x = (self.mousewatcher.getMouseX()+1)/2
+            y = (-self.mousewatcher.getMouseY()+1)/2
+            x = int(x*self.width)
+            y = int(y*self.height)
+            if window:
+                x -= window.x
+                y -= window.y
+            return x, y
+        return None
 
 # Some random display of capability.
 if __name__ == "__main__":
@@ -225,10 +238,13 @@ if __name__ == "__main__":
             self.win.setClearColor((0,0,0,1))
             self.accept("escape", sys.exit)
 
+            self.disableMouse()
             self.purses = Purses(81, 41) # Init purses
             self.t_wind = Window(0, 0, 81, 41) # Make a window
-            self.l_wind = Window(80-8, 0, 8, 41) # Make another window
+            self.l_wind = Window(81-8, 0, 8, 41) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
+
+            self.accept("mouse1",  self.purses.getmouse)
 
             # Some lazy timers
             self.i = 0
@@ -265,7 +281,6 @@ if __name__ == "__main__":
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
                 self.t_wind.addstr(0, 40, s, (choice(cc), choice(cc)))
-
 
                 # Draw that classic idle/loading thingy in other window.
                 # And it's blinking
