@@ -74,7 +74,7 @@ class Window:
                 self.cursor[1] += 1
                 self.cursor[0] = 0
                 if self.cursor[1] > self.lines:
-                    self.scroll()
+                    self.scrolldown()
 
     # Scroll the grid 
     def scrolldown(self):

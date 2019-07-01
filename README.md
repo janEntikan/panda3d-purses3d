@@ -16,6 +16,10 @@ To see a colorful display of functionality, run
  $ pip install -r requirements.txt
  $ python purses3d/__init__.py 
 ```
+It is also avaiable on pypi.
+```
+ $ pip install panda3d-purses3d
+```
 
 TODO: 
 * Decrease expensive grid iteration somehow.
