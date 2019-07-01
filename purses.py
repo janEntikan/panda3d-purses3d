@@ -3,9 +3,7 @@ from panda3d.core import TextFont, SamplerState
 
 
 # These are mostly for testing, make your own damn properties!
-colors = {
-    "black"  : (0,0,0,1),
-    "white"  : (1,1,1,1),
+b_colors = {
     "red"    : (1,0,0,1),
     "orange" : (1,0.5,0,1),
     "yellow" : (1,1,0,1),
@@ -13,6 +11,9 @@ colors = {
     "blue"   : (0,0,1,1),
     "cyan"   : (0,1,1,1),
     "magenta": (1,0,1,1),
+    "black"  : (0,0,0,1),
+    "grey"   : (0.5,0.5,0.5),
+    "white"  : (1,1,1,1),
 }
 
 manager = TextPropertiesManager.getGlobalPtr()
@@ -51,10 +52,7 @@ def overloadcurse(window, args):
             attr = EMPTY_ATTR
     return x, y, string, attr
 
-# A window, which has a grid (list of lists) of characters.
-# A character is either None or looks like this:
-# ("c", ["fg_properties", "bg_properties"])
-# Properties can be None to get a white fg and a transparent bg.
+
 class Window:
     def __init__(self, x, y, columns, lines):
         self.cursor = [0,0]
@@ -92,6 +90,17 @@ class Window:
             r.append(EMPTY_CHAR)
         self.grid.insert(0, r)
 
+    # Remove a single line, append at bottom
+    def deleteline(y):
+        self.grid.pop(y)
+        self.grid.append([])
+        for i in range(self.columns):
+            self.grid[self.lines-1].append(EMPTY_CHAR)
+
+    # Remove a single character
+    def delete(x, y):
+        self.grid[y][x] = EMPTY_CHAR
+
     # Set up grid for garbage collecting
     def destroy(self):
         self.grid = []
@@ -111,18 +120,17 @@ class Window:
             for x in range(self.columns):
                 self.grid[y].append(ch)
 
-    # Remove a single character
-    def delete(x, y):
-        self.grid[y][x] = EMPTY_CHAR
-
     # Add a single character
     def addch(self, *args):
         x, y, char, attr = overloadcurse(self, args)
         self.cursor = [x, y]
+        self.addchar(x, y, char, attr)
+
+    def addchar(self, x, y, char, attr=EMPTY_ATTR): # same but without overload
         try:
-            self.grid[self.cursor[1]][self.cursor[0]] = (char, attr)
+            self.grid[y][x] = (char, attr)
         except IndexError:
-            raise IndexError("Trying to write outside of the window!")
+            raise IndexError("Trying to write outside of window!")
         self.increment()
 
     #  Add a string
@@ -130,7 +138,7 @@ class Window:
         x, y, string, attr = overloadcurse(self, args)
         self.cursor = [x, y]
         for s, char in enumerate(string):
-            self.addch(self.cursor[0], self.cursor[1], char, attr)
+            self.addchar(self.cursor[0], self.cursor[1], char, attr)
 
     # Draw a horizontal line to the right
     def linehori(self, x, y, length, char, attr=EMPTY_ATTR):
@@ -238,12 +246,12 @@ class Purses(Window):
             return x, y
         return None
 
+
 # Some random display of capability.
 if __name__ == "__main__":
     import sys
     from random import choice
     from direct.showbase.ShowBase import ShowBase
-
 
     cc = []
     for c in colors: cc.append(c)
@@ -287,7 +295,7 @@ if __name__ == "__main__":
             if self.i > 5: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
-                if self.n > 32:
+                if self.n >= 32:
                     self.n = 0
                     self.s += 1
 
