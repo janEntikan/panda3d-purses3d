@@ -80,6 +80,11 @@ purses.addstr(0, 0, "purses!", ("myRedColor", None))
 purses.addstr(0, 0, "purses!", (None, "myRedColor"))
 
 purses.refresh()
+
+# We can reposition this purses instance too so it doesn't take up the entire screen
+purses.node.setScale(0.5)
+purses.node.setPos(-0.3, 0, 0)
+
 ```
 You can change any properties found in the panda3d TextProperties class, though they're mostly untested. Especially changing text size could screw things up I imagine.
 
