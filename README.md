@@ -14,7 +14,7 @@ To see a colorful display of functionality, run
  $ git clone http://github.com/momojohobo/panda3d-purses
  $ cd panda3d-purses
  $ pip install -r requirements.txt
- $ python purses.py 
+ $ python purses3d/__init__.py 
 ```
 
 TODO: 
@@ -30,7 +30,7 @@ Either MIT or Public Domain (CC0), take your pick.
 # Import sys, panda3d and purses
 import sys
 from direct.showbase.ShowBase import ShowBase
-from purses import Purses, Window
+from purses3d import Purses, Window
 
 # Run panda3d
 base = ShowBase()

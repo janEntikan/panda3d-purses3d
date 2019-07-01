@@ -3,7 +3,7 @@ from panda3d.core import TextFont, SamplerState
 
 
 # These are mostly for testing, make your own damn properties!
-b_colors = {
+colors = {
     "red"    : (1,0,0,1),
     "orange" : (1,0.5,0,1),
     "yellow" : (1,1,0,1),
@@ -12,7 +12,7 @@ b_colors = {
     "cyan"   : (0,1,1,1),
     "magenta": (1,0,1,1),
     "black"  : (0,0,0,1),
-    "grey"   : (0.5,0.5,0.5),
+    "grey"   : (0.5,0.5,0.5,1),
     "white"  : (1,1,1,1),
 }
 
