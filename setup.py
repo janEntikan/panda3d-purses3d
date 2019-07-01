@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="panda3d-purses3d",
-    version="0.0.2",
+    version="0.0.1",
     author="momojohobo",
     author_email="bandaibandai@rocketship.com",
     description="Ncurses-like text printing for Panda3D",

@@ -1,4 +1,4 @@
-# Panda3d Purses
+# Purses3d
 
 The goal is to keep panda3d in control as much as possible while providing a console of sorts to print to, not to emulate ncurses as closely as possible. It's currently pretty barebones but with some workarounds can be made to do anything ncurses can except beep().
 
