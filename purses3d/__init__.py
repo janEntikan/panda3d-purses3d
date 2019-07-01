@@ -264,9 +264,9 @@ if __name__ == "__main__":
             self.accept("escape", sys.exit)
 
             self.disableMouse()
-            self.purses = Purses(81, 21) # Init purses
-            self.t_wind = Window(0, 0, 81, 21) # Make a window
-            self.l_wind = Window(81-8, 0, 8, 21) # Make another window
+            self.purses = Purses(81, 41) # Init purses
+            self.t_wind = Window(0, 0, 81, 41) # Make a window
+            self.l_wind = Window(81-8, 0, 8, 41) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
 
             # Some lazy timers
@@ -280,11 +280,6 @@ if __name__ == "__main__":
             self.model.setPos(0.6,3.2,-1.8)
             self.model.setScale(0.2, 0.2, 0.2)
 
-            # scale and move the entire purses node
-            # so it only takes up half the screen
-            self.purses.node.setScale(1, 1, 0.5)
-            self.purses.node.setPos(0,0,.48)
-
             self.taskMgr.add(self.loop)
 
         def loop(self, task):
@@ -292,7 +287,7 @@ if __name__ == "__main__":
             self.model.setH(self.model.getH()+5)
 
             self.i += 1
-            if self.i > 1: # Slow it down so we can see what happens better
+            if self.i > 0: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
                 if self.n >= 32:
@@ -308,7 +303,7 @@ if __name__ == "__main__":
                 for i in range(4):
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
-                self.t_wind.move(0,20)
+                self.t_wind.move(0,40)
                 self.t_wind.addstr(s, (choice(cc), choice(cc)))
 
                 # Draw that classic idle/loading thingy in other window.
