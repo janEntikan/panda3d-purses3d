@@ -24,6 +24,33 @@ for color in colors:
 EMPTY_CHAR = None
 EMPTY_ATTR = [None, None]
 
+# Emulating curses str/ch overloading here (messy)
+def overloadcurse(window, args):
+    if not type(args[0]) == str:
+        if type(args[0]) == int and type(args[1]) == int:
+            x, y = args[0], args[1]
+            if len(args) > 2:
+                if type(args[2]) == str:
+                    string = args[2]
+                    if len(args) > 3:
+                        attr = args[3]
+                    else:
+                        attr = EMPTY_ATTR
+                else:
+                    TypeError(str, " expected, got ", type(args[2]))
+            else:
+                raise TypeError("No string supplied")
+        else:
+            raise TypeError("Supplied x without a y")
+    else:
+        x, y  = window.cursor
+        string = args[0]
+        if len(args) > 1:
+            attr = args[1]
+        else:
+            attr = EMPTY_ATTR
+    return x, y, string, attr
+
 # A window, which has a grid (list of lists) of characters.
 # A character is either None or looks like this:
 # ("c", ["fg_properties", "bg_properties"])
@@ -39,7 +66,7 @@ class Window:
 
     # Move cursor to position
     def move(self, x, y):
-        self.cursor = [x. y]
+        self.cursor = [x, y]
 
     # Increment the cursor
     def increment(self, n=1):
@@ -89,7 +116,8 @@ class Window:
         self.grid[y][x] = EMPTY_CHAR
 
     # Add a single character
-    def addch(self, x, y, char, attr=EMPTY_ATTR):
+    def addch(self, *args):
+        x, y, char, attr = overloadcurse(self, args)
         self.cursor = [x, y]
         try:
             self.grid[self.cursor[1]][self.cursor[0]] = (char, attr)
@@ -98,7 +126,8 @@ class Window:
         self.increment()
 
     #  Add a string
-    def addstr(self, x, y, string, attr=EMPTY_ATTR):
+    def addstr(self, *args):
+        x, y, string, attr = overloadcurse(self, args)
         self.cursor = [x, y]
         for s, char in enumerate(string):
             self.addch(self.cursor[0], self.cursor[1], char, attr)
@@ -265,7 +294,8 @@ if __name__ == "__main__":
                 for i in range(6):
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
-                self.t_wind.addstr(0, 40, s, (choice(cc), choice(cc)))
+                self.t_wind.move(0,40)
+                self.t_wind.addstr(s, (choice(cc), choice(cc)))
 
                 # Draw that classic idle/loading thingy in other window.
                 # And it's blinking

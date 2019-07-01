@@ -39,14 +39,20 @@ purses = Purses(40, 20)
 # Make a window in the center, taking up half the screen
 window = Window(x=10, y=5, width=20, height=10)  
 
+# Move that window's cursor to where we want to write
+window.move(3, 0)
+
 # Write something in that window
-window.addstr(x=0, y=0, string="hello world")
+window.addstr("hello world")
+
+# Or move and print in one go
+window.addstr(3, 0, "hello world")
 
 # Copy it to the main purses window
 purses.copyfrom(window)
 
 # Because Purses() is also a window, we can write something on it too
-purses.addstr(x=0, y=0, "purses!")
+purses.addstr(0, 0, "purses!")
 
 # Update the screen
 purses.refresh()
