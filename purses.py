@@ -56,12 +56,12 @@ def overloadcurse(window, args):
 # ("c", ["fg_properties", "bg_properties"])
 # Properties can be None to get a white fg and a transparent bg.
 class Window:
-    def __init__(self, x, y, width, height):
+    def __init__(self, x, y, columns, lines):
         self.cursor = [0,0]
         self.isscrolling = False
         self.x, self.y = x, y
-        self.width = width
-        self.height = height
+        self.columns = columns
+        self.lines = lines
         self.fill() # Creates self.grid
 
     # Move cursor to position
@@ -72,23 +72,23 @@ class Window:
     def increment(self, n=1):
         for i in range(n):
             self.cursor[0] += 1
-            if self.cursor[0] >= self.width:
+            if self.cursor[0] >= self.columns:
                 self.cursor[1] += 1
                 self.cursor[0] = 0
-                if self.cursor[1] > self.height:
+                if self.cursor[1] > self.lines:
                     self.scroll()
 
     # Scroll the grid 
     def scrolldown(self):
         self.grid.pop(0)
         self.grid.append([])
-        for i in range(self.width):
-            self.grid[self.height-1].append(EMPTY_CHAR)
+        for i in range(self.columns):
+            self.grid[self.lines-1].append(EMPTY_CHAR)
 
     def scrollup(self):
         self.grid.pop()
         r = []
-        for i in range(self.width):
+        for i in range(self.columns):
             r.append(EMPTY_CHAR)
         self.grid.insert(0, r)
 
@@ -106,9 +106,9 @@ class Window:
     # Fill the grid with a character (or empty)
     def fill(self, ch=EMPTY_CHAR):
         self.grid = []
-        for y in range(self.height):
+        for y in range(self.lines):
             self.grid.append([])
-            for x in range(self.width):
+            for x in range(self.columns):
                 self.grid[y].append(ch)
 
     # Remove a single character
@@ -144,13 +144,13 @@ class Window:
 
     # Make a border around the window
     def border(self, ls, rs, ts, bs, tl, tr, bl, br):
-        w = self.width-1
-        h = self.height-1
+        w = self.columns-1
+        h = self.lines-1
         # Top, down, left right bars
-        self.line_hori(0, 0, self.width, ts)
-        self.line_hori(0, h, self.width, bs)
-        self.line_vert(0, 0, self.height, ls)
-        self.line_vert(w, 0, self.height, rs)
+        self.line_hori(0, 0, self.columns, ts)
+        self.line_hori(0, h, self.columns, bs)
+        self.line_vert(0, 0, self.lines, ls)
+        self.line_vert(w, 0, self.lines, rs)
         # Corners
         self.addch(0, 0, tl[0], tl[1]) 
         self.addch(w, 0, tr[0], tr[1]) 
@@ -165,11 +165,10 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self, width, height, font="hack.ttf"):
-        self.width = width
-        self.height = height
-
-        Window.__init__(self, 0, 0, self.width, self.height)
+    def __init__(self, columns, lines, font="hack.ttf"):
+        self.columns = columns
+        self.lines = lines
+        Window.__init__(self, 0, 0, self.columns, self.lines)
         self.textnodes = (TextNode("PursesFG"), TextNode("PursesBG"))
         self.font = loader.loadFont(font)
 
@@ -179,8 +178,10 @@ class Purses(Window):
 
         self.w = self.font.getSpaceAdvance()/2
         self.h = self.font.getLineHeight()/2
-        self.cw = (self.w*self.width)
-        self.ch = (self.h*self.height)
+        self.cw = (self.w*self.columns)
+        self.ch = (self.h*self.lines)
+
+        self.node = render2d.attachNewNode("purses")
 
         # Background color is a seperate textnode that 
         # only prints a unicode full block with properties. 
@@ -188,7 +189,7 @@ class Purses(Window):
         # Caveat: doesn't work with fonts without block character.
         for n, node in enumerate(self.textnodes):
             node.setFont(self.font)
-            np = render2d.attachNewNode(node)
+            np = self.node.attachNewNode(node)
             np.setScale(1/self.cw, 1, 1/self.ch)
             np.setPos(-1 ,n+100,1-(self.h/15))
 
@@ -199,8 +200,8 @@ class Purses(Window):
     def refresh(self):
         strings = [str(), str()]
         properties = [None, None]
-        for y in range(self.height):
-            for x in range(self.width):
+        for y in range(self.lines):
+            for x in range(self.columns):
                 char = self.grid[y][x]
                 if char:
                     for i, attr in enumerate(char[1]):
@@ -229,8 +230,8 @@ class Purses(Window):
         if self.mousewatcher.hasMouse():
             x = (self.mousewatcher.getMouseX()+1)/2
             y = (-self.mousewatcher.getMouseY()+1)/2
-            x = int(x*self.width)
-            y = int(y*self.height)
+            x = int(x*self.columns)
+            y = int(y*self.lines)
             if window:
                 x -= window.x
                 y -= window.y
@@ -255,9 +256,9 @@ if __name__ == "__main__":
             self.accept("escape", sys.exit)
 
             self.disableMouse()
-            self.purses = Purses(81, 41) # Init purses
-            self.t_wind = Window(0, 0, 81, 41) # Make a window
-            self.l_wind = Window(81-8, 0, 8, 41) # Make another window
+            self.purses = Purses(81, 21) # Init purses
+            self.t_wind = Window(0, 0, 81, 21) # Make a window
+            self.l_wind = Window(81-8, 0, 8, 21) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
 
             # Some lazy timers
@@ -270,6 +271,11 @@ if __name__ == "__main__":
             self.model.reparentTo(render)
             self.model.setPos(0.6,3.2,-1.8)
             self.model.setScale(0.2, 0.2, 0.2)
+
+            # scale and move the entire purses node
+            # so it only takes up half the screen
+            self.purses.node.setScale(1, 1, 0.5)
+            self.purses.node.setPos(0,0,.48)
 
             self.taskMgr.add(self.loop)
 
@@ -294,7 +300,7 @@ if __name__ == "__main__":
                 for i in range(6):
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
-                self.t_wind.move(0,40)
+                self.t_wind.move(0,20)
                 self.t_wind.addstr(s, (choice(cc), choice(cc)))
 
                 # Draw that classic idle/loading thingy in other window.
