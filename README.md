@@ -5,8 +5,6 @@ The goal is to keep panda3d in control as much as possible while providing a con
 
 * Only works with monospaced fonts that contain the U+2588 "full block" unicode character for solid character backgrounds. For this reason hack.ttf is in this repo, which is MIT licensed.
 * Meant to be used to make ascii/text-based games, GUIs, HUDs, etc.
-* Doesn't draw larger consoles (like 150x150) very well (yet), YMMV. 
-* Doesn't work well with software rendering at all.
 * Either combine with panda3d's other capabilities or consider this the wrong way to draw text to a screen.
 
 To see a colorful display of functionality, run

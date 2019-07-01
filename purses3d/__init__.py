@@ -206,7 +206,7 @@ class Purses(Window):
 
     # Set grid to a single string and throw it to the screen. (messy)
     def refresh(self):
-        strings = [str(), str()]
+        strings = [[], []]
         properties = [None, None]
         for y in range(self.lines):
             for x in range(self.columns):
@@ -216,23 +216,23 @@ class Purses(Window):
                         if not properties[i] == attr:
                             properties[i] = attr
                             if properties[i]:
-                                strings[i] += "\1"+properties[i]+"\1"
+                                strings[i].append("\1"+properties[i]+"\1")
                             else:
-                                strings[i] += "\2"
-                    strings[0] += char[0]
+                                strings[i].append("\2")
+                    strings[0].append(char[0])
                 else:
                     if not properties == [None, None]:
                         properties = [None, None]
-                        strings[0] += "\2"
-                    strings[0] += " "
+                        strings[0].append("\2")
+                    strings[0].append(" ")
                 if properties[1]:
-                    strings[1] += "█" # Full block unicode character 
+                    strings[1].append("█") # Full block unicode character 
                 else:
-                    strings[1] += " "
-            strings[0] += "\n"
-            strings[1] += "\n"
+                    strings[1].append(" ")
+            strings[0].append("\n")
+            strings[1].append("\n")
         for n, node in enumerate(self.textnodes):
-            node.setText(strings[n])
+            node.setText("".join(strings[n]))
 
     def getmouse(self, window=None):
         if self.mousewatcher.hasMouse():
@@ -292,7 +292,7 @@ if __name__ == "__main__":
             self.model.setH(self.model.getH()+5)
 
             self.i += 1
-            if self.i > 5: # Slow it down so we can see what happens better
+            if self.i > 1: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
                 if self.n >= 32:
@@ -305,7 +305,7 @@ if __name__ == "__main__":
                     "sweet", "alright", "yeah", 
                     "wow", "nice"]
                 s = str()
-                for i in range(6):
+                for i in range(4):
                     s += choice(ss) + " "
                 self.t_wind.scrolldown()
                 self.t_wind.move(0,20)
