@@ -7,6 +7,7 @@ The goal is to keep panda3d in control as much as possible while providing a con
 * Meant to be used to make ascii/text-based games, GUIs, HUDs, etc.
 * Doesn't draw larger consoles (like 150x150) very well (yet), YMMV. 
 * Doesn't work well with software rendering at all.
+* Either combine with panda3d's advanced capabilities or consider this the wrong way to draw text to a screen.
 
 Run purses.py to see a colorful display of functionality.
 
@@ -14,6 +15,11 @@ Run purses.py to see a colorful display of functionality.
 TODO: 
     Decrease expensive grid iteration somehow.
     Steal more handy functions from ncurses.
+
+### License
+Either MIT or Public Domain (CC0), take your pick.
+
+## How to use:
 
 ```
 # Import sys, panda3d and purses
@@ -88,7 +94,7 @@ purses.addstr(x, y, string, properties) # Add a string
 purses.linehori(start_x, start_y, length, character, properties)
 purses.linevert(start_x, start_y, length, character, properties)
 
-# Draw a border around the window, left, right, top, bottom and corners clockwise.
+# Draw a border around the window, left, right, top, bottom and its corners.
 # Each character should be complete with properties ("c", (None, None))
 purses.border(ls, rs, ts, bs, tl, tr, bl, br) 
 purses.box(horizontal_sides, vertical_sides)
