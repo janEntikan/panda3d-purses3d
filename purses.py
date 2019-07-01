@@ -1,31 +1,18 @@
-""" 
-PANDA3D-PURSES. HJHilberding/Momojohobo. Licenced whatever you like.
-    Is a very barebones and EZ curses impression/look-alike for Panda3D
-    Is not very faithful to curses
-    Only works with monospaced fonts with U+2588 (for bg colors)
-    Is meant to be used for more ascii or hackery GUIs and HUDs
-    Could serve for making ascii/text games in panda3d
-    Starts crawling to a halt when windows are larger then 100x100
-TODO:
-    Translate mouse cursor to Window cursor.
-    Steal more handy functions from curses.
-"""
-
 from panda3d.core import TextNode, TextPropertiesManager, TextProperties
 from panda3d.core import TextFont, SamplerState
 
 
 # These are mostly for testing, make your own damn properties!
 colors = {
-    "black" : (0,0,0,1),
-    "white" : (1,1,1,1),
-    "red"   : (1,0,0,1),
-    "orange": (1,0.5,0,1),
-    "yellow": (1,1,0,1),
-    "green" : (0,1,0,1),
-    "blue"  : (0,0,1,1),
-    "cyan"  : (0,1,1,1),
-    "violet": (1,0,1,1),
+    "black"  : (0,0,0,1),
+    "white"  : (1,1,1,1),
+    "red"    : (1,0,0,1),
+    "orange" : (1,0.5,0,1),
+    "yellow" : (1,1,0,1),
+    "green"  : (0,1,0,1),
+    "blue"   : (0,0,1,1),
+    "cyan"   : (0,1,1,1),
+    "magenta": (1,0,1,1),
 }
 
 manager = TextPropertiesManager.getGlobalPtr()
@@ -55,7 +42,7 @@ class Window:
         self.cursor = [x. y]
 
     # Increment the cursor
-    def increment_cursor(self, n=1):
+    def increment(self, n=1):
         for i in range(n):
             self.cursor[0] += 1
             if self.cursor[0] >= self.width:
@@ -83,7 +70,7 @@ class Window:
         self.grid = []
 
     # Copy the contents of a window to this window
-    def blit(self, window):
+    def copyfrom(self, window):
         for y, row in enumerate(window.grid):
             for x, ch in enumerate(row):
                 if ch:
@@ -108,7 +95,7 @@ class Window:
             self.grid[self.cursor[1]][self.cursor[0]] = (char, attr)
         except IndexError:
             raise IndexError("Trying to write outside of the window!")
-        self.increment_cursor()
+        self.increment()
 
     #  Add a string
     def addstr(self, x, y, string, attr=EMPTY_ATTR):
@@ -117,12 +104,12 @@ class Window:
             self.addch(self.cursor[0], self.cursor[1], char, attr)
 
     # Draw a horizontal line to the right
-    def line_hor(self, x, y, length, char, attr=EMPTY_ATTR):
+    def linehori(self, x, y, length, char, attr=EMPTY_ATTR):
         for i in range(length):
             self.addch(x+i, y, char, attr)
 
     # Draw a vertical line down
-    def line_vert(self, x, y, length, char, attr=EMPTY_ATTR):
+    def linevert(self, x, y, length, char, attr=EMPTY_ATTR):
         for i in range(length):
             self.addch(x, y+i, char, attr)
 
@@ -244,8 +231,6 @@ if __name__ == "__main__":
             self.l_wind = Window(81-8, 0, 8, 41) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
 
-            self.accept("mouse1",  self.purses.getmouse)
-
             # Some lazy timers
             self.i = 0
             self.n = 0
@@ -303,9 +288,9 @@ if __name__ == "__main__":
                 self.s_wind.addstr(0,0, welcome[self.s%4], (blink, None))
         
                 self.purses.fill() # Clear screen
-                self.purses.blit(self.t_wind) # Copy t_wind to main wind
-                self.purses.blit(self.l_wind) # Copy l_wind to main wind
-                self.purses.blit(self.s_wind) # Copy l_wind to main wind
+                self.purses.copyfrom(self.t_wind) # Copy t_wind to main wind
+                self.purses.copyfrom(self.l_wind) # Copy l_wind to main wind
+                self.purses.copyfrom(self.s_wind) # Copy l_wind to main wind
                 self.purses.refresh() # Put main wind to screen
             return task.cont
     app = Game()
