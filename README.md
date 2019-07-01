@@ -85,6 +85,9 @@ purses.refresh()
 purses.node.setScale(0.5)
 purses.node.setPos(-0.3, 0, 0)
 
+# Or parent it to the world as a 3d object COOOL!
+purses.node.reparentTo(render)
+
 ```
 You can change any properties found in the panda3d TextProperties class, though they're mostly untested. Especially changing text size could screw things up I imagine.
 
