@@ -7,14 +7,19 @@ The goal is to keep panda3d in control as much as possible while providing a con
 * Meant to be used to make ascii/text-based games, GUIs, HUDs, etc.
 * Doesn't draw larger consoles (like 150x150) very well (yet), YMMV. 
 * Doesn't work well with software rendering at all.
-* Either combine with panda3d's advanced capabilities or consider this the wrong way to draw text to a screen.
+* Either combine with panda3d's other capabilities or consider this the wrong way to draw text to a screen.
 
-Run purses.py to see a colorful display of functionality.
-
+To see a colorful display of functionality, run
+```
+ $ git clone http://github.com/momojohobo/panda3d-purses
+ $ cd panda3d-purses
+ $ pip install -r requirements.txt
+ $ python purses.py 
+```
 
 TODO: 
-    Decrease expensive grid iteration somehow.
-    Steal more handy functions from ncurses.
+* Decrease expensive grid iteration somehow.
+* Steal more handy functions from ncurses.
 
 ### License
 Either MIT or Public Domain (CC0), take your pick.
@@ -37,7 +42,7 @@ base.run()
 purses = Purses(40, 20)
 
 # Make a window in the center, taking up half the screen
-window = Window(x=10, y=5, width=20, height=10)  
+window = Window(x=10, y=5, columns=20, lines=10)  
 
 # Move that window's cursor to where we want to write
 window.move(3, 0)
