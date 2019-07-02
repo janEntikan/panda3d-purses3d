@@ -187,7 +187,9 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self, columns, lines, font="hack.ttf"):
+    def __init__(self, columns, lines, font=None):
+        if not font:
+            font = __file__[:-11]+"hack.ttf"
         self.columns = columns
         self.lines = lines
         Window.__init__(self, 0, 0, self.columns, self.lines)
