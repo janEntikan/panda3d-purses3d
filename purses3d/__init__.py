@@ -23,7 +23,8 @@ for color in colors:
     manager.setProperties(color, tp)
 
 EMPTY_CHAR = None
-EMPTY_ATTR = [None, None]
+EMPTY_ATTR = (None, None)
+ESCAPE_CHARS = "\b\f\r\v"
 
 # Emulating curses str/ch overloading here (messy)
 def overloadcurse(window, args):
@@ -36,7 +37,7 @@ def overloadcurse(window, args):
                     if len(args) > 3:
                         attr = args[3]
                     else:
-                        attr = EMPTY_ATTR
+                        attr = (None, None)
                 else:
                     TypeError(str, " expected, got ", type(args[2]))
             else:
@@ -61,21 +62,26 @@ class Window:
         self.columns = columns
         self.lines = lines
         self.fill() # Creates self.grid
+        self.skip = False
 
     # Move cursor to position
     def move(self, x, y):
         self.cursor = [x, y]
 
     # Increment the cursor
-    def increment(self, n=1):
-        for i in range(n):
+    def increment(self, x=1, y=0):
+        for i in range(y):
+            self.cursor[1] += 1
+            if self.cursor[1] > self.lines:
+                self.scrolldown()
+        for i in range(x):
             self.cursor[0] += 1
             if self.cursor[0] >= self.columns:
                 self.cursor[1] += 1
                 self.cursor[0] = 0
                 if self.cursor[1] > self.lines:
                     self.scrolldown()
-
+        
     # Scroll the grid 
     def scrolldown(self):
         self.grid.pop(0)
@@ -126,12 +132,20 @@ class Window:
         self.cursor = [x, y]
         self.addchar(x, y, char, attr)
 
-    def addchar(self, x, y, char, attr=EMPTY_ATTR): # same but without overload
-        try:
-            self.grid[y][x] = (char, attr)
-        except IndexError:
-            raise IndexError("Trying to write outside of window!")
-        self.increment()
+    def addchar(self, x, y, char, attr=EMPTY_ATTR):
+        if char == "\n":
+            self.cursor[0] = 0
+            self.increment(y=1)
+        elif char == "\t":
+            self.increment(4)
+        elif char in ESCAPE_CHARS:
+            pass
+        else:
+            try:
+                self.grid[y][x] = (char, attr)
+            except IndexError:
+                raise IndexError("Trying to write outside of window!")
+            self.increment()
 
     #  Add a string
     def addstr(self, *args):
@@ -269,6 +283,9 @@ if __name__ == "__main__":
             self.l_wind = Window(81-8, 0, 8, 41) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
 
+            self.t_wind.move(4,4)
+            self.t_wind.addstr("this\nis\n\tgoing\btorockyourworld")
+
             # Some lazy timers
             self.i = 0
             self.n = 0
@@ -287,7 +304,7 @@ if __name__ == "__main__":
             self.model.setH(self.model.getH()+5)
 
             self.i += 1
-            if self.i > 0: # Slow it down so we can see what happens better
+            if self.i > 20: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
                 if self.n >= 32:
@@ -308,10 +325,9 @@ if __name__ == "__main__":
 
                 # Draw that classic idle/loading thingy in other window.
                 # And it's blinking
-                ll = "|\-/-"
+                ll = "|\\-/-"
                 lc = "white", "yellow", "orange", "red"
                 blink = lc[self.n%4]
-
                 self.l_wind.scrollup()
                 self.l_wind.addstr(0,0, ll[self.n%4], (blink, None))
                 self.l_wind.addstr(1,0, "PURSES", (choice(cc), None))
