@@ -20,7 +20,6 @@ It is also avaiable on pypi.
 ```
 
 TODO: 
-* Decrease expensive grid iteration somehow.
 * Steal more handy functions from ncurses.
 
 ### License

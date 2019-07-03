@@ -1,6 +1,12 @@
+from os import path
 from panda3d.core import TextNode, TextPropertiesManager, TextProperties
 from panda3d.core import TextFont, SamplerState
 
+
+EMPTY_CHAR = None
+EMPTY_ATTR = (None, None)
+ESCAPE_CHARS = "\b\f\r\v"
+FONT = path.join(path.dirname(__file__), 'hack.ttf')
 
 # These are mostly for testing, make your own damn properties!
 colors = {
@@ -21,10 +27,6 @@ for color in colors:
     tp = TextProperties()
     tp.setTextColor(colors[color])
     manager.setProperties(color, tp)
-
-EMPTY_CHAR = None
-EMPTY_ATTR = (None, None)
-ESCAPE_CHARS = "\b\f\r\v"
 
 # Emulating curses str/ch overloading here (messy)
 def overloadcurse(window, args):
@@ -187,9 +189,7 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self, columns, lines, font=None):
-        if not font:
-            font = __file__[:-11]+"hack.ttf"
+    def __init__(self, columns, lines, font=FONT):
         self.columns = columns
         self.lines = lines
         Window.__init__(self, 0, 0, self.columns, self.lines)
