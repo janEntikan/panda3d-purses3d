@@ -64,6 +64,8 @@ purses.addstr(0, 0, "purses!")
 purses.refresh()
 ```
 
+## Colors / Properties
+
 To add colors (amongst other need things) we'll need panda3d's TextPropertiesManager
 
 ```
@@ -97,6 +99,29 @@ purses.node.reparentTo(render)
 ```
 You can change any properties found in the panda3d TextProperties class, though they're mostly untested. Especially changing text size could screw things up I imagine.
 
+
+## Text input
+
+Because panda3d is a realtime system and curses is not, text input is handled a little differently.
+
+```
+# Get user input string at (10, 5) from main purses screen
+string = purses.getstr(10, 5)
+
+# You can also supply a different window to echo the string to
+# Or give it fg and bg attributes
+string = purses.getstr(10, 5, window=my_window, attr=("red", "blue"))
+
+# If the string is closed (with enter), it is returned instead of None.
+if string:
+    # If used types hello
+    if string == "hello":
+        # Print this answer
+        purses.addstr("why hello there buddy!")
+
+```
+
+
 ### Functions so far
 ```
 purses.move(x, y) # Place the cursor at position
@@ -119,10 +144,11 @@ purses.linevert(start_x, start_y, length, character, properties)
 purses.border(ls, rs, ts, bs, tl, tr, bl, br) 
 purses.box(horizontal_sides, vertical_sides)
 
-# Refresh screen, only callable from Purses()
-purses.refresh() 
-
+# These calls only work from the main Purses() window.
+purses.refresh() # Refresh screen (place its state to the screen)
 # Return the mouse coordinates in characters, only callable from Purses()
 # If window is specified it will return its relative coordinates
 purses.getmouse(window) 
+# Return a string as written by user
+purses.getstr(x, y, window=None, attr=(None, None))
 ```

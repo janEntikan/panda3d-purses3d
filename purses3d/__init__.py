@@ -6,7 +6,13 @@ from panda3d.core import TextFont, SamplerState
 EMPTY_CHAR = None
 EMPTY_ATTR = (None, None)
 ESCAPE_CHARS = "\b\f\r\v"
-FONT = path.join(path.dirname(__file__), 'hack.ttf')
+DEFAULT_FONT = path.join(path.dirname(__file__), 'hack.ttf')
+
+l = "abcdefghijklmnopqrstuvwxyz"
+l+= "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+l+= "1234567890-=\\`!@#$%^&*()_"
+l+= "+|~[]{};':,./<>? "+'"'
+LEGAL_INPUT = l
 
 # These are mostly for testing, make your own damn properties!
 colors = {
@@ -39,7 +45,7 @@ def overloadcurse(window, args):
                     if len(args) > 3:
                         attr = args[3]
                     else:
-                        attr = (None, None)
+                        attr = EMPTY_ATTR
                 else:
                     TypeError(str, " expected, got ", type(args[2]))
             else:
@@ -59,12 +65,11 @@ def overloadcurse(window, args):
 class Window:
     def __init__(self, x, y, columns, lines):
         self.cursor = [0,0]
-        self.isscrolling = False
         self.x, self.y = x, y
         self.columns = columns
         self.lines = lines
+        self.input = ""
         self.fill() # Creates self.grid
-        self.skip = False
 
     # Move cursor to position
     def move(self, x, y):
@@ -99,14 +104,14 @@ class Window:
         self.grid.insert(0, r)
 
     # Remove a single line, append at bottom
-    def deleteline(y):
+    def deleteline(self, y):
         self.grid.pop(y)
         self.grid.append([])
         for i in range(self.columns):
             self.grid[self.lines-1].append(EMPTY_CHAR)
 
     # Remove a single character
-    def delete(x, y):
+    def delete(self, x, y):
         self.grid[y][x] = EMPTY_CHAR
 
     # Set up grid for garbage collecting
@@ -189,14 +194,16 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self, columns, lines, font=FONT):
+    def __init__(self, columns, lines, font=DEFAULT_FONT):
         self.columns = columns
         self.lines = lines
         Window.__init__(self, 0, 0, self.columns, self.lines)
         self.textnodes = (TextNode("PursesFG"), TextNode("PursesBG"))
+
+        self.setup_keys()
         self.font = loader.loadFont(font)
 
-        # Set to nearest filter so background color doesn't have lines.
+        # Set to nearest filter so background color doesn't have lines (or actually fix?).
         self.font.setMagfilter(SamplerState.FT_nearest)
         self.font.setMinfilter(SamplerState.FT_nearest)
 
@@ -262,8 +269,58 @@ class Purses(Window):
             return x, y
         return None
 
+    def setup_keys(self):
+        base.buttonThrowers[0].node().setKeystrokeEvent("purses_in")
+        base.accept("purses_in", self.get_ascii)
+        base.accept("enter", self.get_special, ["return"])
+        base.accept("backspace", self.get_special, ["backspace"])
+        base.accept("left", self.get_special, ["left"])
+        base.accept("right", self.get_special, ["right"])
+        base.accept("up", self.get_special, ["up"])
+        base.accept("down", self.get_special, ["down"])
+        self.special_input = ""
+        self.ascii_input = ""
 
-# Some random display of capability.
+    # Catch things like return, backspace and arrows
+    def get_special(self, key):
+        self.special_input = key
+
+    # Catch last pressed key as ascii
+    def get_ascii(self, key):
+        self.ascii_input = key
+
+    # Return it
+    def getch(self):
+        return self.ascii_input
+
+    # update string logic for window
+    def getstr(self, x, y, window=None, attr=EMPTY_ATTR):
+        prep = "> "
+        out = None
+        if not window:
+            window = self
+        if not self.ascii_input == "":
+            ch = self.ascii_input
+            self.ascii_input = ""
+            if ch in LEGAL_INPUT:
+                window.input += ch
+        if not self.special_input == "":
+            ch = self.special_input
+            self.special_input = ""
+            if ch == "return":
+                if len(window.input)>0:
+                    out = window.input
+                    window.delete(x+len(window.input)+len(prep), y)
+                    window.input = ""
+                    window.scrolldown()
+            elif ch == "backspace":
+                window.delete(x+len(window.input)+len(prep), y)
+                window.input = window.input[:-1]
+        window.addstr(x, y, prep+window.input+"_", attr)
+        return out
+
+
+# Some colorful display of capability and debuggery.
 if __name__ == "__main__":
     import sys
     from random import choice
@@ -285,10 +342,11 @@ if __name__ == "__main__":
             self.l_wind = Window(81-8, 0, 8, 41) # Make another window
             self.s_wind = Window(30, 0, 25, 3) # One more
 
+            # Test escape characters, exposes attribute bug
             self.t_wind.move(4,4)
             self.t_wind.addstr("this\nis\n\tgoing\btorockyourworld")
 
-            # Some lazy timers
+            # Some lazy counters
             self.i = 0
             self.n = 0
             self.s = 0
@@ -306,7 +364,7 @@ if __name__ == "__main__":
             self.model.setH(self.model.getH()+5)
 
             self.i += 1
-            if self.i > 20: # Slow it down so we can see what happens better
+            if self.i > 1: # Slow it down so we can see what happens better
                 self. i = 0
                 self.n += 1
                 if self.n >= 32:
@@ -348,6 +406,9 @@ if __name__ == "__main__":
                 self.purses.copyfrom(self.t_wind) # Copy t_wind to main wind
                 self.purses.copyfrom(self.l_wind) # Copy l_wind to main wind
                 self.purses.copyfrom(self.s_wind) # Copy l_wind to main wind
+
+                self.purses.getstr(x=5, y=10)
+
                 self.purses.refresh() # Put main wind to screen
             return task.cont
     app = Game()
