@@ -79,15 +79,17 @@ class Window:
     def increment(self, x=1, y=0):
         for i in range(y):
             self.cursor[1] += 1
-            if self.cursor[1] > self.lines:
+            if self.cursor[1] >= self.lines:
                 self.scrolldown()
+                self.cursor[1] -= 1
         for i in range(x):
             self.cursor[0] += 1
             if self.cursor[0] >= self.columns:
                 self.cursor[1] += 1
                 self.cursor[0] = 0
-                if self.cursor[1] > self.lines:
+                if self.cursor[1] >= self.lines:
                     self.scrolldown()
+                    self.cursor[1] -= 1
         
     # Scroll the grid 
     def scrolldown(self):
@@ -151,7 +153,7 @@ class Window:
             try:
                 self.grid[y][x] = (char, attr)
             except IndexError:
-                raise IndexError("Trying to write outside of window!")
+                raise IndexError("Trying to write outside of window!", x, y)
             self.increment()
 
     #  Add a string
