@@ -90,8 +90,8 @@ class Window:
                 if self.cursor[1] >= self.lines:
                     self.scrolldown()
                     self.cursor[1] -= 1
-        
-    # Scroll the grid 
+
+    # Scroll the grid
     def scrolldown(self):
         self.grid.pop(0)
         self.grid.append([])
@@ -183,15 +183,15 @@ class Window:
         self.line_vert(0, 0, self.lines, ls)
         self.line_vert(w, 0, self.lines, rs)
         # Corners
-        self.addch(0, 0, tl[0], tl[1]) 
-        self.addch(w, 0, tr[0], tr[1]) 
-        self.addch(0, h, bl[0], bl[1]) 
-        self.addch(w, h, br[0], br[1]) 
+        self.addch(0, 0, tl[0], tl[1])
+        self.addch(w, 0, tr[0], tr[1])
+        self.addch(0, h, bl[0], bl[1])
+        self.addch(w, h, br[0], br[1])
 
     # Make a simpler border around the window
     def box(vertch, horch):
         v, h = vertch, horch
-        self.border(h, h, v, v, v, v, v, v) 
+        self.border(h, h, v, v, v, v, v, v)
 
 
 # Is also a window but spans the entire screen.
@@ -216,15 +216,16 @@ class Purses(Window):
 
         self.node = render2d.attachNewNode("purses")
 
-        # Background color is a seperate textnode that 
-        # only prints a unicode full block with properties. 
+        # Background color is a seperate textnode that
+        # only prints a unicode full block with properties.
         # Not ideal but it works and is faster then tons of cards.
         # Caveat: doesn't work with fonts without block character.
         for n, node in enumerate(self.textnodes):
             node.setFont(self.font)
             np = self.node.attachNewNode(node)
+
             np.setScale(1/self.cw, 1, 1/self.ch)
-            np.setPos(-1 ,n+100,1-(self.h/15))
+            np.setPos(-1 ,n,1-(self.h/8))
 
         self.mousewatcher = base.mouseWatcherNode
         self.getmouse()
@@ -251,7 +252,7 @@ class Purses(Window):
                         strings[0].append("\2")
                     strings[0].append(" ")
                 if properties[1]:
-                    strings[1].append("█") # Full block unicode character 
+                    strings[1].append("█") # Full block unicode character
                 else:
                     strings[1].append(" ")
             strings[0].append("\n")
@@ -375,8 +376,8 @@ if __name__ == "__main__":
 
                 # Add random strings to first window in random colors
                 ss = [
-                    "ok", "cool", "that's amazing", 
-                    "sweet", "alright", "yeah", 
+                    "ok", "cool", "that's amazing",
+                    "sweet", "alright", "yeah",
                     "wow", "nice"]
                 s = str()
                 for i in range(4):
@@ -403,7 +404,7 @@ if __name__ == "__main__":
                 )
                 self.s_wind.fill()
                 self.s_wind.addstr(0,0, welcome[self.s%4], (blink, None))
-        
+
                 self.purses.fill() # Clear screen
                 self.purses.copyfrom(self.t_wind) # Copy t_wind to main wind
                 self.purses.copyfrom(self.l_wind) # Copy l_wind to main wind
