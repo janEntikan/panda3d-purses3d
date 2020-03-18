@@ -196,15 +196,18 @@ class Window:
 
 # Is also a window but spans the entire screen.
 class Purses(Window):
-    def __init__(self, columns, lines, font=DEFAULT_FONT):
+    def __init__(self, columns, lines, font=None):
         self.columns = columns
         self.lines = lines
         Window.__init__(self, 0, 0, self.columns, self.lines)
         self.textnodes = (TextNode("PursesFG"), TextNode("PursesBG"))
 
         self.setup_keys()
-        self.font = loader.loadFont(font)
 
+        if font:
+            self.font = font
+        else:
+            self.font = loader.loadFont(DEFAULT_FONT)
         # Set to nearest filter so background color doesn't have lines (or actually fix?).
         self.font.setMagfilter(SamplerState.FT_nearest)
         self.font.setMinfilter(SamplerState.FT_nearest)
@@ -230,7 +233,7 @@ class Purses(Window):
         self.mousewatcher = base.mouseWatcherNode
         self.getmouse()
 
-    # Set grid to a single string and throw it to the screen. (messy)
+    # Convert grid to a single string and throw it to the screen. (messy)
     def refresh(self):
         strings = [[], []]
         properties = [None, None]
@@ -238,6 +241,9 @@ class Purses(Window):
             for x in range(self.columns):
                 char = self.grid[y][x]
                 if char:
+                    char = list(char)
+                    if type(char[1]) == str:
+                        char[1] = [char[1], None]
                     for i, attr in enumerate(char[1]):
                         if not properties[i] == attr:
                             properties[i] = attr

@@ -12,14 +12,14 @@ To see a colorful display of functionality, run
  $ git clone http://github.com/momojohobo/panda3d-purses
  $ cd panda3d-purses
  $ pip install -r requirements.txt
- $ python purses3d/__init__.py 
+ $ python purses3d/__init__.py
 ```
 It is also avaiable on pypi.
 ```
  $ pip install panda3d-purses3d
 ```
 
-TODO: 
+TODO:
 * Steal more handy functions from ncurses.
 
 ### License
@@ -79,7 +79,7 @@ red = TextProperties()
 red.setTextColor((1,0,0,1))
 
 # Add it to panda's global mananger
-manager.addProperties("myRedColor", red) 
+manager.addProperties("myRedColor", red)
 
 # And use it to print the characters foreground (with a transparent background)
 purses.addstr(0, 0, "purses!", ("myRedColor", None))
@@ -133,7 +133,7 @@ purses.scrolldown() # Scroll everything in window down
 purses.fill(character) # Fills the entire window with a char (or empty if none is specified)
 purses.delete(x, y) # Delete a single character
 purses.addch(x, y, char, properties) # Add a single character
-purses.addstr(x, y, string, properties) # Add a string 
+purses.addstr(x, y, string, properties) # Add a string
 
 # Draw horizontal and vertical lines respectively
 purses.linehori(start_x, start_y, length, character, properties)
@@ -141,14 +141,14 @@ purses.linevert(start_x, start_y, length, character, properties)
 
 # Draw a border around the window, left, right, top, bottom and its corners.
 # Each character should be complete with properties ("c", (None, None))
-purses.border(ls, rs, ts, bs, tl, tr, bl, br) 
+purses.border(ls, rs, ts, bs, tl, tr, bl, br)
 purses.box(horizontal_sides, vertical_sides)
 
 # These calls only work from the main Purses() window.
 purses.refresh() # Refresh screen (place its state to the screen)
 # Return the mouse coordinates in characters, only callable from Purses()
 # If window is specified it will return its relative coordinates
-purses.getmouse(window) 
+purses.getmouse(window)
 # Return a string as written by user
 purses.getstr(x, y, window=None, attr=(None, None))
 ```
